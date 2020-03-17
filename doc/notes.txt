@@ -1,0 +1,35 @@
+The obvious (but important) stuff:
+    
+    Training on raw data does not work at all. This is due to the huge range of parameters, intensities, and Q values on linear scales. People typically use log-log scale to better visualize scattering features, hence a log scale is used for training and prediction. This reduces the range of the data to about +-10. Additional steps to normalize the data to a mean of 0 and stdv of 1 can be considered.
+
+    Using larger batches will result in improved throughput but slower convergence. Larger batches will also require more VRAM.
+
+    
+Implementation details:
+
+    Synthetic Data Generation:
+
+        Data is generated using a standalone sasmodels package. This can also be obtained as part of SASView. 
+        Parameters are varied and probability distributions are used for certain parameters (such as radius). Some parameters that only affect the data by a scalar (such as beam intensity, sld) along any degree of freedom are kept constant. 
+        
+        Processing is done using the ray package. This has a number of benefits over multiprocessing, although the primary reason for using ray is to allow the passing of torch classes between threads.
+
+    Convolutional Neural Network:
+
+        The Neural Network python scripts provide methods that simplify training and testing the model. See their individual documentation files for details.
+        TODO: WRITE THIS
+
+        The tensors are kept in system memory until batch creation, where it is then sent to the GPU. This reduces the amount of VRAM neccesary for training and testing and allows the use of larger batches. This reduces performance slightly compared to keeping all tensors in the GPU. I will consider adding this as an option.
+
+    Non-Deep Analysis:
+
+        Support Vector Machine - WIP
+
+        Random Forest Classifier - WIP
+        
+    
+To do:
+
+    Matplotlib is slow. Looking into integrating with ROOT (Data Analysis Framework developed at CERN).
+    
+    Clean up & Comment code
