@@ -1,6 +1,3 @@
-# License: GNU General Public License V3.0
-# Yuke Wang 2020 (ywa329@uky.edu)
-
 import sasmodels
 from sasmodels.core import load_model
 from sasmodels import direct_model
