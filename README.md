@@ -1,4 +1,5 @@
 # nSAI
+Neutron scattering analysis tools. Work in progress.
 
 ## Dependencies
 - torch
