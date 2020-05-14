@@ -50,9 +50,7 @@ def gen_sphere(parameters):
 
     I = calculator(**parameters)
     I = smear.apply(I)
-    
     I = torch.Tensor(I)
-
     return torch.stack((q, I), 0)
 
 #Thread helper for generating data
@@ -71,16 +69,15 @@ def __generator_thread__(nsamples):
     
 #Generates samples
 def gen_data(nsamples):
-    samples_per_thread = int(nsamples / N_CPUS) + (nsamples % N_CPUS > 1)
-    data = torch.empty((nsamples, 2, POINTS_PER_SAMPLE))
-    target = torch.empty((nsamples, 1))
+    samples_per_thread = int(nsamples / N_CPUS) + (nsamples % N_CPUS >= 1)
+    data = torch.empty((N_CPUS * samples_per_thread, 2, POINTS_PER_SAMPLE))
+    target = torch.empty((N_CPUS * samples_per_thread, 1))
     ray.init(num_cpus=N_CPUS)
     results = ray.get([__generator_thread__.remote(samples_per_thread) for i in range(N_CPUS)])
 
     #Concatenate results into tensor
-    for i in range(N_CPUS-1):
+    for i in range(N_CPUS):
         data[i*samples_per_thread:(i+1)*samples_per_thread] = results[i][0]
         target[i*samples_per_thread:(i+1)*samples_per_thread] = results[i][1]
-    data[(N_CPUS-1)*samples_per_thread:] = results[i][0][:((nsamples-1)%samples_per_thread)+1]
-    target[(N_CPUS-1)*samples_per_thread:] = results[i][1][:((nsamples-1)%samples_per_thread)+1]
-    return data, target
+    
+    return data[:nsamples], target[:nsamples]
